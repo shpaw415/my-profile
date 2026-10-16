@@ -13,7 +13,7 @@
   const L: Record<string, any> = {
     fr: {
       title: "Mon profil",
-      sub: "Renseigné une seule fois ici ; l'agent y puise pour remplir formulaires fiscaux et autres. Tout est rangé dans le coffre de clés, jamais en clair.",
+      sub: "Renseigné une seule fois ici ; l'agent y puise pour remplir formulaires fiscaux et autres. Copie durable dans le coffre de clés ; copie de lecture locale protégée (chmod 600).",
       groups: { identity: "Identité", contact: "Contact", government: "Gouvernemental", business: "Affaires" },
       desc: {
         identity: "Nom et date de naissance.",
@@ -33,7 +33,7 @@
       },
       save: "Enregistrer", saving: "Enregistrement…",
       saved: "Enregistré dans le coffre ✓", show: "voir", hide: "cacher",
-      footer: "my-profile · les valeurs restent dans le coffre de clés ; cette page ne les affiche que pour toi.",
+      footer: "my-profile · copie durable dans le coffre de clés ; cette page ne les affiche que pour toi.",
       errLoad: "Impossible de charger le profil (API en échec) : ",
       errSave: "Échec de l'enregistrement : ",
       cards: {
@@ -54,7 +54,7 @@
     },
     en: {
       title: "My Profile",
-      sub: "Fill it in once here; the agent draws from it to complete tax and other forms. Everything is stored in the key vault, never in plaintext.",
+      sub: "Fill it in once here; the agent draws from it to complete tax and other forms. Durable copy in the key vault; a protected local read mirror (chmod 600) serves reads.",
       groups: { identity: "Identity", contact: "Contact", government: "Government", business: "Business" },
       desc: {
         identity: "Name and date of birth.",
@@ -74,7 +74,7 @@
       },
       save: "Save", saving: "Saving…",
       saved: "Saved to the vault ✓", show: "show", hide: "hide",
-      footer: "my-profile · values stay in the key vault; this page only shows them to you.",
+      footer: "my-profile · durable copy in the key vault; this page only shows them to you.",
       errLoad: "Could not load the profile (API failure): ",
       errSave: "Save failed: ",
       cards: {

@@ -30,7 +30,8 @@ ob-plugin install my-profile
 ```
 
 Then open the **My Profile** tab in the open-bot dashboard and fill the form once.
-Values go straight into the desktop key vault.
+Values go into the desktop key vault (durable copy); a local read mirror
+(`chmod 600`) serves the reads.
 
 ## CLI
 

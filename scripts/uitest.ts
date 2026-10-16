@@ -42,7 +42,11 @@ function check(name: string, ok: boolean, detail = ""): void {
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 async function api(path: string, opts?: RequestInit): Promise<{ status: number; body: any }> {
-  const r = await fetch(`${BASE}${path}`, opts);
+  // page-token contract (2026-10-16 directive): "dev-preview" is the accepted
+  // header value for preview/dev tooling when OPEN_BOT_PAGE_TOKEN is set;
+  // ignored by servers that run without a token.
+  const headers = { "x-open-bot-page-token": "dev-preview", ...(opts?.headers ?? {}) };
+  const r = await fetch(`${BASE}${path}`, { ...opts, headers });
   return { status: r.status, body: await r.json() };
 }
 
@@ -107,8 +111,10 @@ async function freshWindow(search: string): Promise<{ win: any; doc: any }> {
   d.write(html);
   Object.defineProperty(w.navigator, "language", { value: "fr-CA", configurable: true });
   const rf = w.fetch.bind(w);
-  w.fetch = (input: any, init?: any) =>
-    rf(typeof input === "string" && input.startsWith("api/") ? `${BASE}/${input}` : input, init);
+  w.fetch = (input: any, init?: any) => {
+    const h = { "x-open-bot-page-token": "dev-preview", ...(init?.headers ?? {}) };
+    return rf(typeof input === "string" && input.startsWith("api/") ? `${BASE}/${input}` : input, { ...init, headers: h });
+  };
   w.confirm = () => true;
   await runScripts(w, d);
   await sleep(1200);
@@ -144,8 +150,10 @@ doc.write(html);
 Object.defineProperty(win.navigator, "language", { value: "fr-CA", configurable: true });
 {
   const rf = win.fetch.bind(win);
-  (win as any).fetch = (input: any, init?: any) =>
-    rf(typeof input === "string" && input.startsWith("api/") ? `${BASE}/${input}` : input, init);
+  (win as any).fetch = (input: any, init?: any) => {
+    const h = { "x-open-bot-page-token": "dev-preview", ...(init?.headers ?? {}) };
+    return rf(typeof input === "string" && input.startsWith("api/") ? `${BASE}/${input}` : input, { ...init, headers: h });
+  };
 }
 await runScripts(win, doc);
 await sleep(1200);

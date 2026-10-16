@@ -1,7 +1,8 @@
 # my-profile (integration skill)
 
 The user's personal profile — identity, contact info, government IDs and
-business numbers — stored once in the key vault, served to you field by field
+business numbers — stored in the key vault (durable copy, plus a local 0600
+read mirror), served to you field by field
 so you can fill tax forms, government forms and any document that needs the
 user's personal details without asking every time.
 

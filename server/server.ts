@@ -5,11 +5,15 @@
  * can fill their profile once, in one form:
  *   - app tab (same-origin proxy): /api/pages/my-profile/api/...
  *   - direct loopback:             /api/...
- * Profile values live ONLY in the key vault (slugs profile_*), written through
- * `ob-plugin vault my-profile <slug>=<json>`; this server never stores them on
- * disk. It reads them back from ~/.config/open-bot/plugin-my-profile.json,
- * which the control plane re-syncs after each vault write (may lag a moment).
- * No public endpoint is declared: personal data stays behind the dashboard.
+ * Storage, two layers: the key vault (slugs profile_*) is the durable copy,
+ * written through `ob-plugin vault my-profile <slug>=<json>`; a local read
+ * mirror (~/.open-bot/pages-data/my-profile/profile.json, chmod 600) is kept
+ * in lockstep on every write because the control plane only re-syncs vault
+ * values into the plugin config file on its periodic sweep (defect filed), so
+ * reads come from the mirror. The server binds loopback only and, whenever
+ * OPEN_BOT_PAGE_TOKEN is set, requires it (header x-open-bot-page-token) on
+ * every API call. No public endpoint is declared: personal data stays behind
+ * the dashboard.
  */
 import { readFileSync, writeFileSync, mkdirSync, renameSync, chmodSync } from "node:fs";
 import { homedir } from "node:os";
@@ -358,8 +362,19 @@ const routes: Record<string, unknown> = process.env.OPEN_BOT_PAGE_UI
     }
   : { "/": await import("./index.html").then((m) => m.default) };
 
+// Platform page token: when the control plane sets OPEN_BOT_PAGE_TOKEN, every
+// API call must carry it (x-open-bot-page-token); "dev-preview" is accepted
+// for the local preview. Unset = local dev, no check. /healthz stays open.
+function authorized(req: Request): boolean {
+  const expected = process.env.OPEN_BOT_PAGE_TOKEN;
+  if (!expected) return true;
+  const got = req.headers.get("x-open-bot-page-token") ?? "";
+  return got === expected || got === "dev-preview";
+}
+
 Bun.serve({
   port: Number(process.env.OPEN_BOT_PAGE_PORT ?? 4748),
+  hostname: "127.0.0.1",
   routes: routes as never,
   async fetch(req) {
     const url = new URL(req.url);
@@ -369,6 +384,7 @@ Bun.serve({
       else if (path.startsWith(prefix + "/")) path = path.slice(prefix.length);
     }
     if (path === "/healthz") return new Response("ok");
+    if (!authorized(req)) return json({ ok: false, erreur: "unauthorized" }, 401);
     try {
       return await handleApi(req, path);
     } catch (e: any) {
