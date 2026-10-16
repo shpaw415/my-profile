@@ -210,19 +210,28 @@ if (fake) {
   check("PATCH status → inactive", tog.status === 200 && tog.body.card.status === "inactive");
   const act = await api("/api/cards?status=active");
   check("status filter (active excludes fake)", !(act.body.cards ?? []).some((c: any) => c.id === fake.id));
-  const del = await api(`/api/cards/${fake.id}`, { method: "DELETE" });
-  check("fake card removed", del.status === 200 && del.body.ok === true);
 }
-const finalCards = await api("/api/cards");
-check("no fake card left", !(finalCards.body.cards ?? []).some((c: any) => c.brand === "Testbank"));
 
-// ---------- 5. language toggle ----------
+// ---------- 5. language toggle (+ card buttons still wired after rebuild) ----------
 check("FR by default", ($("t-title") as any).textContent === "Mon profil");
 $("langbtn")!.dispatchEvent(new win.Event("click", { bubbles: true }));
 await sleep(600);
 check("langbtn switches to EN", ($("t-title") as any).textContent === "My Profile");
+if (fake) {
+  const tg = doc.querySelector(`.cardrow[data-id="${fake.id}"] button[data-act="toggle"]`) as any;
+  check("toggle button rendered after lang switch", !!tg);
+  tg.dispatchEvent(new win.Event("click", { bubbles: true }));
+  await sleep(900);
+  const flipped = await api("/api/cards");
+  const refake = (flipped.body.cards ?? []).find((c: any) => c.id === fake.id);
+  check("card buttons still wired after rebuild (UI toggle → active)", refake?.status === "active", String(refake?.status));
+  const del = await api(`/api/cards/${fake.id}`, { method: "DELETE" });
+  check("fake card removed", del.status === 200 && del.body.ok === true);
+}
 $("langbtn")!.dispatchEvent(new win.Event("click", { bubbles: true }));
 await sleep(600);
+const finalCards = await api("/api/cards");
+check("no fake card left", !(finalCards.body.cards ?? []).some((c: any) => c.brand === "Testbank"));
 
 // ---------- restore ----------
 console.log(restore() ? "\nrestored mirror + vault from snapshot (values never printed)" : "\nRESTORE INCOMPLETE — see message above");

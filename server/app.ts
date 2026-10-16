@@ -157,6 +157,9 @@
       </div>`;
     root.appendChild(sc);
     sc.querySelector("#nc-add")!.addEventListener("click", addCard);
+    // re-attach on every rebuild: buildCards() recreates #cardlist, so the
+    // delegated click listener must be re-bound too (was dead after a lang switch)
+    wireCardActions();
     root.querySelectorAll("button.save").forEach((b) => b.addEventListener("click", () => saveGroup((b as HTMLElement).dataset.group!)));
     root.querySelectorAll("button.eye").forEach((b) =>
       b.addEventListener("click", () => {
@@ -313,5 +316,4 @@
 
   buildCards();
   loadProfile();
-  wireCardActions();
 })();

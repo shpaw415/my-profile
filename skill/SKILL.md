@@ -31,7 +31,7 @@ ob-plugin-my-profile-profile set city "Québec"
 # payment cards — metadata only (brand, last4, expiry, status), NEVER a full number
 ob-plugin-my-profile-profile cards list [--status active|inactive]
 ob-plugin-my-profile-profile cards active
-ob-plugin-my-profile-profile cards add --type credit --brand visa --last4 1234 --label "Desjardins perso" --expiry 2029-05
+ob-plugin-my-profile-profile cards add --type credit --brand visa --last4 1234 --label "perso" --expiry 2029-05
 ob-plugin-my-profile-profile cards status 1234 inactive   # obsolete / deactivated by provider
 ob-plugin-my-profile-profile cards update 1234 --label "nouveau nom" --expiry 2030-01
 ob-plugin-my-profile-profile cards remove 1234
