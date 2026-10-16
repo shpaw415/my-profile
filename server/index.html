@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My Profile</title>
+<script>
+  // Theme: light is the default, dark via browser preference, overridable with
+  // ?theme=light|dark — the open-bot dashboard toggle drives this parameter on
+  // the proxied page. Set before the CSS so there is no flash. No custom toggle.
+  (function () {
+    var apply = function () {
+      var q = null;
+      try { q = new URLSearchParams(location.search).get("theme"); } catch (e) {}
+      var dark = q === "dark" || (q !== "light" && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+      if (dark) document.documentElement.setAttribute("data-theme", "dark");
+      else document.documentElement.removeAttribute("data-theme");
+    };
+    apply();
+    try {
+      var mq = window.matchMedia("(prefers-color-scheme: dark)");
+      if (mq.addEventListener) mq.addEventListener("change", function () { if (!new URLSearchParams(location.search).get("theme")) apply(); });
+    } catch (e) {}
+  })();
+</script>
+<link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1 id="t-title">Mon profil</h1>
+    <button class="langbtn" id="langbtn" type="button">English</button>
+  </header>
+  <p class="sub" id="t-sub"></p>
+  <div class="banner" id="banner"></div>
+  <div id="cards"></div>
+  <footer id="t-footer"></footer>
+</div>
+<script src="./app.ts"></script>
+</body>
+</html>
