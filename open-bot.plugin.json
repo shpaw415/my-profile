@@ -2,7 +2,7 @@
   "$schema": "/home/agent/.config/opencode/skills/plugin/open-bot.plugin.schema.json",
   "id": "my-profile",
   "name": "My Profile",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Personal profile vault for the open-bot agent: the user's identity, contact, government ID, business numbers and payment cards (active/inactive status, metadata only) stored in the key vault (durable copy, plus a local 0600 read mirror) via a dashboard form, then served field by field to the agent (ob-plugin-my-profile-profile) so it can fill tax and government forms without asking every time. Sensitive fields always require the user's confirmation unless they explicitly opt out.",
   "author": "shpaw415",
   "repo": "shpaw415/my-profile",

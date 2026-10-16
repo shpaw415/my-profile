@@ -42,10 +42,10 @@ function check(name: string, ok: boolean, detail = ""): void {
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 async function api(path: string, opts?: RequestInit): Promise<{ status: number; body: any }> {
-  // page-token contract (2026-10-16 directive): "dev-preview" is the accepted
-  // header value for preview/dev tooling when OPEN_BOT_PAGE_TOKEN is set;
-  // ignored by servers that run without a token.
-  const headers = { "x-open-bot-page-token": "dev-preview", ...(opts?.headers ?? {}) };
+  // page-token contract (2026-10-16 directive): a token-set server only ever
+  // accepts the real OPEN_BOT_PAGE_TOKEN — pass it via UI_TOKEN (never printed);
+  // "dev-preview" only serves tokenless dev/preview servers.
+  const headers = { "x-open-bot-page-token": process.env.UI_TOKEN || "dev-preview", ...(opts?.headers ?? {}) };
   const r = await fetch(`${BASE}${path}`, { ...opts, headers });
   return { status: r.status, body: await r.json() };
 }
@@ -112,7 +112,7 @@ async function freshWindow(search: string): Promise<{ win: any; doc: any }> {
   Object.defineProperty(w.navigator, "language", { value: "fr-CA", configurable: true });
   const rf = w.fetch.bind(w);
   w.fetch = (input: any, init?: any) => {
-    const h = { "x-open-bot-page-token": "dev-preview", ...(init?.headers ?? {}) };
+    const h = { "x-open-bot-page-token": process.env.UI_TOKEN || "dev-preview", ...(init?.headers ?? {}) };
     return rf(typeof input === "string" && input.startsWith("api/") ? `${BASE}/${input}` : input, { ...init, headers: h });
   };
   w.confirm = () => true;
@@ -151,7 +151,7 @@ Object.defineProperty(win.navigator, "language", { value: "fr-CA", configurable:
 {
   const rf = win.fetch.bind(win);
   (win as any).fetch = (input: any, init?: any) => {
-    const h = { "x-open-bot-page-token": "dev-preview", ...(init?.headers ?? {}) };
+    const h = { "x-open-bot-page-token": process.env.UI_TOKEN || "dev-preview", ...(init?.headers ?? {}) };
     return rf(typeof input === "string" && input.startsWith("api/") ? `${BASE}/${input}` : input, { ...init, headers: h });
   };
 }

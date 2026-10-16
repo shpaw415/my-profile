@@ -363,13 +363,14 @@ const routes: Record<string, unknown> = process.env.OPEN_BOT_PAGE_UI
   : { "/": await import("./index.html").then((m) => m.default) };
 
 // Platform page token: when the control plane sets OPEN_BOT_PAGE_TOKEN, every
-// API call must carry it (x-open-bot-page-token); "dev-preview" is accepted
-// for the local preview. Unset = local dev, no check. /healthz stays open.
+// API call must carry exactly that token (header x-open-bot-page-token) — no
+// literal fallback, so a token-set (installed/production) server never accepts
+// a well-known value. Unset = local dev / preview without a token: no check.
+// /healthz stays open in both modes.
 function authorized(req: Request): boolean {
   const expected = process.env.OPEN_BOT_PAGE_TOKEN;
   if (!expected) return true;
-  const got = req.headers.get("x-open-bot-page-token") ?? "";
-  return got === expected || got === "dev-preview";
+  return (req.headers.get("x-open-bot-page-token") ?? "") === expected;
 }
 
 Bun.serve({
