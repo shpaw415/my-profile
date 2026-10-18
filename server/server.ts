@@ -15,7 +15,7 @@
  * every API call. No public endpoint is declared: personal data stays behind
  * the dashboard.
  */
-import { readFileSync, writeFileSync, mkdirSync, renameSync, chmodSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync, renameSync, chmodSync, existsSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
 
@@ -355,12 +355,15 @@ async function handleApi(req: Request, path: string): Promise<Response> {
 // before Bun.serve.
 const routes: Record<string, unknown> = process.env.OPEN_BOT_PAGE_UI
   ? {
-      "/": (): Response =>
+      "/": () =>
         new Response(Bun.file(process.env.OPEN_BOT_PAGE_UI as string), {
           headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-cache" },
         }),
     }
-  : { "/": await import("./index.html").then((m) => m.default) };
+  : // Default: the standalone build (scripts/build-ui.ts → ui.html), so the
+    // dashboard proxy never meets Bun dev-serve /_bun chunks it cannot route.
+    // Dev-serve fallback only when ui.html has not been built yet.
+    { "/": existsSync(join(import.meta.dir, "ui.html")) ? () => new Response(Bun.file(join(import.meta.dir, "ui.html")), { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-cache" } }) : await import("./index.html").then((m) => m.default) };
 
 // Platform page token: when the control plane sets OPEN_BOT_PAGE_TOKEN, every
 // API call must carry exactly that token (header x-open-bot-page-token) — no
@@ -375,7 +378,10 @@ function authorized(req: Request): boolean {
 
 Bun.serve({
   port: Number(process.env.OPEN_BOT_PAGE_PORT ?? 4748),
-  hostname: "127.0.0.1",
+  // No "hostname" pin: the dashboard control plane probes over ::1 / the
+  // container network — binding 127.0.0.1 only makes the probe (and the tab)
+  // fail with running:false while the server is healthy. Security is the
+  // page token (OPEN_BOT_PAGE_TOKEN), not the bind address.
   routes: routes as never,
   async fetch(req) {
     const url = new URL(req.url);

@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My Profile</title>
+<script>
+  // Theme: light is the default, dark via browser preference, overridable with
+  // ?theme=light|dark — the open-bot dashboard toggle drives this parameter on
+  // the proxied page. Set before the CSS so there is no flash. No custom toggle.
+  (function () {
+    var apply = function () {
+      var q = null;
+      try { q = new URLSearchParams(location.search).get("theme"); } catch (e) {}
+      var dark = q === "dark" || (q !== "light" && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+      if (dark) document.documentElement.setAttribute("data-theme", "dark");
+      else document.documentElement.removeAttribute("data-theme");
+    };
+    apply();
+    try {
+      var mq = window.matchMedia("(prefers-color-scheme: dark)");
+      if (mq.addEventListener) mq.addEventListener("change", function () { if (!new URLSearchParams(location.search).get("theme")) apply(); });
+    } catch (e) {}
+  })();
+</script>
+<style>
+/* My Profile — dashboard page styles.
+   Light values live in :root; dark overrides are flat rules on
+   html[data-theme="dark"] — the dashboard toggle drives the attribute through
+   ?theme=light|dark (script in <head> before this stylesheet, zero flash).
+   No custom theme toggle in the page. */
+:root {
+  --bg: #f5f6f8;
+  --card: #ffffff;
+  --text: #1c2430;
+  --muted: #5c6773;
+  --border: #d8dee6;
+  --accent: #2563eb;
+  --accent-text: #ffffff;
+  --danger: #b91c1c;
+  --danger-bg: #fee2e2;
+  --ok: #166534;
+  --ok-bg: #dcfce7;
+  --input-bg: #ffffff;
+  --sensitive-note-bg: #fff7ed;
+  --sensitive-note-border: #f59e0b;
+  --sensitive-note-text: #7c4a03;
+  --pill-ok: #166534;
+  --pill-ok-bg: rgba(22, 163, 74, 0.14);
+  --pill-off: #475569;
+  --pill-off-bg: rgba(100, 116, 139, 0.14);
+  --row-border: #e5e9f0;
+}
+html[data-theme="dark"] {
+  --bg: #14181f;
+  --card: #1d232c;
+  --text: #e8ecf1;
+  --muted: #9aa7b4;
+  --border: #333d4a;
+  --accent: #4f8ef7;
+  --accent-text: #0b1220;
+  --danger: #f87171;
+  --danger-bg: #3a1a1a;
+  --ok: #4ade80;
+  --ok-bg: #14301c;
+  --input-bg: #141a22;
+  --sensitive-note-bg: #2b2110;
+  --sensitive-note-border: #b45309;
+  --sensitive-note-text: #fbbf24;
+  --pill-ok: #4ade80;
+  --pill-ok-bg: rgba(74, 222, 128, 0.12);
+  --pill-off: #94a3b8;
+  --pill-off-bg: rgba(148, 163, 184, 0.12);
+  --row-border: #2a3340;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 24px 16px 60px;
+  background: var(--bg); color: var(--text);
+  font: 15px/1.5 -apple-system, "Segoe UI", Roboto, Ubuntu, sans-serif;
+}
+.wrap { max-width: 760px; margin: 0 auto; }
+header { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 6px; }
+h1 { font-size: 22px; margin: 0; }
+.sub { color: var(--muted); font-size: 13px; margin: 0 0 18px; }
+.langbtn {
+  background: none; border: 1px solid var(--border); color: var(--muted);
+  border-radius: 8px; padding: 4px 10px; font-size: 12px; cursor: pointer;
+}
+.banner {
+  display: none; background: var(--danger-bg); color: var(--danger);
+  border: 1px solid var(--danger); border-radius: 10px;
+  padding: 10px 14px; margin: 0 0 16px; font-size: 14px; white-space: pre-wrap;
+}
+.card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 14px; padding: 18px; margin-bottom: 16px;
+}
+.card h2 { font-size: 16px; margin: 0 0 4px; }
+.card .desc { color: var(--muted); font-size: 13px; margin: 0 0 14px; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 14px; }
+@media (max-width: 560px) { .grid { grid-template-columns: 1fr; } }
+.f { display: flex; flex-direction: column; gap: 4px; }
+.f.wide { grid-column: 1 / -1; }
+label { font-size: 12.5px; color: var(--muted); }
+input {
+  background: var(--input-bg); color: var(--text);
+  border: 1px solid var(--border); border-radius: 8px;
+  padding: 8px 10px; font-size: 14px; width: 100%;
+}
+input:focus { outline: 2px solid var(--accent); outline-offset: -1px; border-color: transparent; }
+.senswrap { position: relative; }
+.senswrap input { padding-right: 44px; letter-spacing: 1px; }
+.eye {
+  position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; color: var(--muted); cursor: pointer;
+  font-size: 14px; padding: 4px 6px;
+}
+.note {
+  background: var(--sensitive-note-bg); color: var(--sensitive-note-text);
+  border-left: 3px solid var(--sensitive-note-border);
+  border-radius: 6px; padding: 8px 12px; font-size: 12.5px; margin: 0 0 14px;
+}
+.actions { margin-top: 14px; display: flex; align-items: center; gap: 12px; }
+button.save {
+  background: var(--accent); color: var(--accent-text);
+  border: none; border-radius: 8px; padding: 8px 18px;
+  font-size: 14px; font-weight: 600; cursor: pointer;
+}
+button.save:disabled { opacity: 0.55; cursor: default; }
+.status { font-size: 13px; }
+.status.ok { color: var(--ok); }
+.status.err { color: var(--danger); }
+footer { color: var(--muted); font-size: 12px; margin-top: 22px; }
+.cardrow {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  padding: 10px 0; border-top: 1px solid var(--row-border); font-size: 14px;
+}
+.cardrow:first-child { border-top: none; }
+.cardrow .grow { flex: 1; min-width: 160px; }
+.pill {
+  font-size: 11.5px; font-weight: 600; border-radius: 999px;
+  padding: 2px 10px; text-transform: lowercase; white-space: nowrap;
+}
+.pill.active { color: var(--pill-ok); background: var(--pill-ok-bg); }
+.pill.inactive { color: var(--pill-off); background: var(--pill-off-bg); }
+.badge { font-size: 11px; color: var(--muted); border: 1px solid var(--border); border-radius: 6px; padding: 1px 7px; }
+.minibtn {
+  background: none; border: 1px solid var(--border); color: var(--muted);
+  border-radius: 7px; padding: 3px 10px; font-size: 12.5px; cursor: pointer;
+}
+.minibtn:hover { color: var(--text); }
+.minibtn.danger { color: var(--danger); border-color: var(--danger); }
+.empty { color: var(--muted); font-size: 13px; padding: 6px 0; }
+.addgrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 10px; }
+@media (max-width: 640px) { .addgrid { grid-template-columns: 1fr 1fr; } }
+select {
+  background: var(--input-bg); color: var(--text);
+  border: 1px solid var(--border); border-radius: 8px;
+  padding: 8px 10px; font-size: 14px; width: 100%;
+}
+select option { background: var(--input-bg); color: var(--text); }
+
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1 id="t-title">Mon profil</h1>
+    <button class="langbtn" id="langbtn" type="button">English</button>
+  </header>
+  <p class="sub" id="t-sub"></p>
+  <div class="banner" id="banner"></div>
+  <div id="cards"></div>
+  <footer id="t-footer"></footer>
+</div>
+<script>
+(()=>{(()=>{let GROUPS=["identity","contact","government","business"],FIELDS={identity:["full_name","date_of_birth"],contact:["address_line1","address_line2","city","province","postal_code","country","phone","email","work_email"],government:["sin","ramq","driver_license"],business:["business_name","neq","gst_number","qst_number"]},SENSITIVE=new Set(["sin","ramq","driver_license"]),WIDE=new Set(["full_name","address_line1","address_line2","email","business_name"]),L={fr:{title:"Mon profil",sub:"Renseigné une seule fois ici ; l'agent y puise pour remplir formulaires fiscaux et autres. Copie durable dans le coffre de clés ; copie de lecture locale protégée (chmod 600).",groups:{identity:"Identité",contact:"Contact",government:"Gouvernemental",business:"Affaires"},desc:{identity:"Nom et date de naissance.",contact:"Adresse, téléphone et courriel.",government:"Numéros d'identification personnels.",business:"Numéros d'entreprise (votre entreprise ou autre)."},note:"Champs sensibles : l'agent demandera toujours ta confirmation avant de les utiliser, tant que le réglage « sensitive_require_confirmation » reste activé.",labels:{full_name:"Nom complet",date_of_birth:"Date de naissance (AAAA-MM-JJ)",address_line1:"Adresse (ligne 1)",address_line2:"Adresse (ligne 2)",city:"Ville",province:"Province",postal_code:"Code postal",country:"Pays",phone:"Téléphone",email:"Courriel",work_email:"Courriel de travail",sin:"NAS — no d'assurance sociale",ramq:"No de RAMQ",driver_license:"Permis de conduire",business_name:"Nom de l'entreprise",neq:"NEQ (Québec)",gst_number:"TPS",qst_number:"TVQ"},save:"Enregistrer",saving:"Enregistrement…",saved:"Enregistré dans le coffre ✓",show:"voir",hide:"cacher",footer:"my-profile · copie durable dans le coffre de clés ; cette page ne les affiche que pour toi.",errLoad:"Impossible de charger le profil (API en échec) : ",errSave:"Échec de l'enregistrement : ",cards:{title:"Cartes de paiement",desc:"Débit et crédit, avec statut actif ou inactif (carte obsolète ou désactivée par le fournisseur).",warning:"Métadonnées seulement : marque et 4 derniers chiffres. N'entre jamais le numéro complet ni le CVV.",empty:"Aucune carte enregistrée.",add:"Ajouter",adding:"Ajout…",added:"Carte ajoutée ✓",type:"Type",brand:"Marque",last4:"4 derniers chiffres",expiry:"Expire (AAAA-MM)",label:"Note (optionnel)",debit:"Débit",credit:"Crédit",active:"active",inactive:"inactive",activate:"Activer",deactivate:"Désactiver",remove:"Supprimer",confirmRemove:"Supprimer cette carte ?",errCards:"Impossible de charger les cartes : "}},en:{title:"My Profile",sub:"Fill it in once here; the agent draws from it to complete tax and other forms. Durable copy in the key vault; a protected local read mirror (chmod 600) serves reads.",groups:{identity:"Identity",contact:"Contact",government:"Government",business:"Business"},desc:{identity:"Name and date of birth.",contact:"Address, phone and email.",government:"Personal ID numbers.",business:"Business numbers (your business or other)."},note:"Sensitive fields: the agent will always ask for your confirmation before using them, as long as the “sensitive_require_confirmation” setting stays on.",labels:{full_name:"Full name",date_of_birth:"Date of birth (YYYY-MM-DD)",address_line1:"Address (line 1)",address_line2:"Address (line 2)",city:"City",province:"Province",postal_code:"Postal code",country:"Country",phone:"Phone",email:"Email",work_email:"Work email",sin:"SIN — Social Insurance Number",ramq:"RAMQ number",driver_license:"Driver's license",business_name:"Business name",neq:"NEQ (Quebec)",gst_number:"GST",qst_number:"QST"},save:"Save",saving:"Saving…",saved:"Saved to the vault ✓",show:"show",hide:"hide",footer:"my-profile · durable copy in the key vault; this page only shows them to you.",errLoad:"Could not load the profile (API failure): ",errSave:"Save failed: ",cards:{title:"Payment cards",desc:"Debit and credit, with an active or inactive status (obsolete card, or deactivated by the provider).",warning:"Metadata only: brand and last 4 digits. Never enter the full number or the CVV.",empty:"No cards stored yet.",add:"Add",adding:"Adding…",added:"Card added ✓",type:"Type",brand:"Brand",last4:"Last 4 digits",expiry:"Expires (YYYY-MM)",label:"Note (optional)",debit:"Debit",credit:"Credit",active:"active",inactive:"inactive",activate:"Activate",deactivate:"Deactivate",remove:"Remove",confirmRemove:"Remove this card?",errCards:"Could not load the cards: "}}},lang="fr";try{lang=localStorage.getItem("my-profile-lang")||((navigator.language||"").toLowerCase().startsWith("fr")?"fr":"en")}catch{}let $=(id)=>document.getElementById(id),esc=(s)=>String(s).replace(/[&<>"']/g,(c)=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]),inputs={};function buildCards(){let t=L[lang];$("t-title").textContent=t.title,$("t-sub").textContent=t.sub,$("langbtn").textContent=lang==="fr"?"English":"Français",$("t-footer").textContent=t.footer;let root=$("cards");root.innerHTML="";for(let g of GROUPS){let card=document.createElement("section");card.className="card";let html=`<h2>${esc(t.groups[g])}</h2><p class="desc">${esc(t.desc[g])}</p>`;if(g==="government")html+=`<p class="note">${esc(t.note)}</p>`;html+='<div class="grid">';for(let f of FIELDS[g]){let eye=SENSITIVE.has(f)?`<button type="button" class="eye" data-eye="${f}">${esc(t.show)}</button>`:"";html+=`<div class="f${WIDE.has(f)?" wide":""}">
+          <label for="in-${f}">${esc(t.labels[f])}</label>
+          <div class="senswrap"><input id="in-${f}" type="${SENSITIVE.has(f)?"password":"text"}" autocomplete="off">
+          ${eye}</div>
+        </div>`}html+=`</div><div class="actions">
+        <button type="button" class="save" data-group="${g}">${esc(t.save)}</button>
+        <span class="status" id="st-${g}"></span>
+      </div>`,card.innerHTML=html,root.appendChild(card);for(let f of FIELDS[g])inputs[f]=card.querySelector(`#in-${f}`)}let cc=t.cards,sc=document.createElement("section");sc.className="card",sc.innerHTML=`<h2>${esc(cc.title)}</h2><p class="desc">${esc(cc.desc)}</p>
+      <p class="note">${esc(cc.warning)}</p>
+      <div id="cardlist"><p class="empty">${esc(cc.empty)}</p></div>
+      <div class="addgrid">
+        <div class="f"><label for="nc-type">${esc(cc.type)}</label>
+          <select id="nc-type"><option value="debit">${esc(cc.debit)}</option><option value="credit">${esc(cc.credit)}</option></select></div>
+        <div class="f"><label for="nc-brand">${esc(cc.brand)}</label><input id="nc-brand" autocomplete="off"></div>
+        <div class="f"><label for="nc-last4">${esc(cc.last4)}</label><input id="nc-last4" inputmode="numeric" maxlength="4" autocomplete="off"></div>
+        <div class="f"><label for="nc-expiry">${esc(cc.expiry)}</label><input id="nc-expiry" placeholder="2029-05" autocomplete="off"></div>
+        <div class="f wide"><label for="nc-label">${esc(cc.label)}</label><input id="nc-label" autocomplete="off"></div>
+      </div>
+      <div class="actions">
+        <button type="button" class="save" id="nc-add">${esc(cc.add)}</button>
+        <span class="status" id="st-cards"></span>
+      </div>`,root.appendChild(sc),sc.querySelector("#nc-add").addEventListener("click",addCard),wireCardActions(),root.querySelectorAll("button.save").forEach((b)=>b.addEventListener("click",()=>saveGroup(b.dataset.group))),root.querySelectorAll("button.eye").forEach((b)=>b.addEventListener("click",()=>{let inp=inputs[b.dataset.eye],show=inp.type==="password";inp.type=show?"text":"password",b.textContent=show?L[lang].hide:L[lang].show})),refreshCardList()}function cardRowHtml(c){let cc=L[lang].cards,name=[c.brand,c.label].filter(Boolean).join(" · ")||cc[c.type];return`<div class="cardrow" data-id="${esc(c.id)}">
+      <span class="badge">${esc(cc[c.type]||c.type)}</span>
+      <span class="grow">•••• ${esc(c.last4)}${name?" — "+esc(name):""}${c.expiry?" · "+esc(c.expiry):""}</span>
+      <span class="pill ${esc(c.status)}">${esc(cc[c.status]||c.status)}</span>
+      <button type="button" class="minibtn" data-act="toggle" data-id="${esc(c.id)}" data-status="${esc(c.status)}">
+        ${esc(c.status==="active"?cc.deactivate:cc.activate)}</button>
+      <button type="button" class="minibtn danger" data-act="remove" data-id="${esc(c.id)}">${esc(cc.remove)}</button>
+    </div>`}async function refreshCardList(){let cc=L[lang].cards,list=$("cardlist");try{let r=await fetch("api/cards"),d=await r.json();if(!r.ok||!d.ok)throw Error(d.erreur||`HTTP ${r.status}`);list.innerHTML=d.cards.length?d.cards.map(cardRowHtml).join(""):`<p class="empty">${esc(cc.empty)}</p>`}catch(e){list.innerHTML="",banner(cc.errCards+(e&&e.message?e.message:e))}}function wireCardActions(){$("cardlist").addEventListener("click",async(ev)=>{let btn=ev.target.closest("button[data-act]");if(!btn)return;let id=btn.dataset.id;if(btn.dataset.act==="toggle"){let next=btn.dataset.status==="active"?"inactive":"active";await fetch(`api/cards/${id}`,{method:"PATCH",headers:{"content-type":"application/json"},body:JSON.stringify({status:next})}),refreshCardList()}else if(btn.dataset.act==="remove"){if(!confirm(L[lang].cards.confirmRemove))return;await fetch(`api/cards/${id}`,{method:"DELETE"}),refreshCardList()}})}async function addCard(){let cc=L[lang].cards,btn=$("nc-add"),st=$("st-cards");btn.disabled=!0,st.className="status",st.textContent=cc.adding;try{let r=await fetch("api/cards",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({type:$("nc-type").value,brand:$("nc-brand").value,last4:$("nc-last4").value,expiry:$("nc-expiry").value,label:$("nc-label").value})}),d=await r.json();if(!r.ok||!d.ok)throw Error(d.erreur||`HTTP ${r.status}`);st.className="status ok",st.textContent=cc.added,banner(""),$("nc-brand").value="",$("nc-last4").value="",$("nc-expiry").value="",$("nc-label").value="",refreshCardList()}catch(e){st.className="status err",st.textContent=e&&e.message?e.message:String(e)}finally{btn.disabled=!1}}function banner(msg){let b=$("banner");if(!msg){b.style.display="none";return}b.textContent=msg,b.style.display="block"}async function loadProfile(){try{let r=await fetch("api/profile"),d=await r.json();if(!r.ok||!d.ok)throw Error(d.erreur||`HTTP ${r.status}`);banner("");for(let g of GROUPS){let values=d.groups&&d.groups[g]&&d.groups[g].values||{};for(let f of FIELDS[g])inputs[f].value=values[f]||""}}catch(e){banner(L[lang].errLoad+(e&&e.message?e.message:e))}}async function saveGroup(g){let t=L[lang],btn=document.querySelector(`button.save[data-group="${g}"]`),st=$("st-"+g);btn.disabled=!0,st.className="status",st.textContent=t.saving;let group={};for(let f of FIELDS[g])group[f]=inputs[f].value;try{let r=await fetch("api/profile",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({groups:{[g]:group}})}),d=await r.json();if(!r.ok||!d.ok)throw Error(d.erreur||`HTTP ${r.status}`);st.className="status ok",st.textContent=t.saved,banner(""),setTimeout(loadProfile,2000)}catch(e){st.className="status err",st.textContent=t.errSave+(e&&e.message?e.message:e),banner(L[lang].errSave+(e&&e.message?e.message:e))}finally{btn.disabled=!1}}$("langbtn").addEventListener("click",()=>{lang=lang==="fr"?"en":"fr";try{localStorage.setItem("my-profile-lang",lang)}catch{}buildCards(),loadProfile()}),buildCards(),loadProfile()})();})();
+
+</script>
+</body>
+</html>
